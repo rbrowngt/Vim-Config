@@ -1,15 +1,37 @@
-" --- Pathogen {{{
-"  Pathogen Settings (https://github.com/tpope/vim-pathogen)
-filetype off
-filetype plugin indent off
+"" --- Pathogen {{{
+""  Pathogen Settings (https://github.com/tpope/vim-pathogen)
+"filetype off
+"filetype plugin indent off
+"let g:javascript_plugin_jsdoc = 1
+"let g:user_emmet_leader_key='<Tab>'
+"let g:user_emmet_settings = {
+"  \  'javascript.jsx' : {
+"    \      'extends' : 'jsx',
+"    \  },
+"  \}
 
 " Adds all bundles to the runtime path
-execute pathogen#infect()
+"execute pathogen#infect()
 
 " Updates all docs on load
-execute pathogen#helptags()
+"execute pathogen#helptags()
 " --- }}}
 
+" vim-plug
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+
+Plug 'yuezk/vim-js'
+Plug 'maxmellon/vim-jsx-pretty'
+Plug 'scrooloose/nerdtree'
+Plug 'elixir-editors/vim-elixir'
+
+call plug#end()
 " --- General Settings {{{
 " File Settings
 if &compatible
@@ -38,7 +60,7 @@ endif
 " Performance
 set lazyredraw                  " Don't redraw while running macros
 set ttyfast                     " Speed up scrolling
-set ttyscroll=3                 " Improve scrolling speed
+"set ttyscroll=3                 " Improve scrolling speed
 set scrolloff=999               " Minimum lines above/below cursor
 set history=25                  " Limit Vim's history to 25 commands
 set ttimeoutlen=100             " Switch modes faster, 10th of a second
@@ -57,11 +79,6 @@ set splitright
 " When listing characters, show some invisible characters of interest
 set listchars=tab:▸\ ,eol:¬,trail:·
 
-if v:version >= 703
-  set relativenumber            " Use relative numbers for ease of movement
-  set cursorline                " Highlight the current line
-endif
-
 " Searching
 set ignorecase                  " Ignore case in search
 set smartcase                   " Don't ignore case if contains uppercase letter
@@ -78,9 +95,9 @@ nnoremap ? ?\v
 vnoremap ? ?\v
 
 " Tabs/spaces
-set tabstop=4                   " Replace tabs with four spaces
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2                   " Replace tabs with four spaces
+set shiftwidth=2
+set softtabstop=2
 set expandtab
 
 " Indenting
@@ -88,11 +105,6 @@ set autoindent                  " Enable auto indenting
 set smartindent                 " Try to 'improve' indenting rules
 set cindent                     " Smarter indents for C programs
 
-" Folding
-"set foldenable                  " Enable code folding on markers
-"set foldmethod=marker
-"set foldnestmax=1
-" --- }}}
 
 " --- Wild Menu {{{
 set wildignore+=*.swp,*~,tags,*.log,__init__.py,*.pyc,*.pyo,*.ttf,*.DS_Store
@@ -105,54 +117,10 @@ function! TrimTrailingWhiteSpace()
   %s/\s\+$//e
 endfunction
 
-if has("autocmd")
-  augroup standard
-    autocmd!
-
-    " Ruby is an oddball in the family, use special spacing/rules
-    if v:version >= 703
-      " Note: Relative number is quite slow with Ruby, so is cursorline
-      autocmd FileType ruby setlocal ts=2 sts=2 sw=2 norelativenumber nocursorline
-    else
-      autocmd FileType ruby setlocal ts=2 sts=2 sw=2
-    endif
-
-    " Don't expand tabs for Go files (Go specified the usage of tabs)
-    autocmd Filetype go setlocal noet ts=4 sw=4 sts=4
-
-    " Remove whitespace on save
-    autocmd FileWritePre,FileAppendPre,FilterWritePre,BufWritePre *
-                \ :call TrimTrailingWhiteSpace()
-
-    " Restore file cursor position on open
-    autocmd BufReadPost *
-                \ if line("'\"") > 0 && line("'\"") <= line("$") |
-                \   exe "normal! g`\"" |
-                \ endif
-
-    autocmd BufNewFile,BufRead *.markdown,*.md setlocal filetype=markdown
-
-    autocmd BufRead * highlight OverLength cterm=underline guibg=underline
-    autocmd BufRead * match OverLength /\%81v.*/
-  augroup END
-endif
-" --- }}}
-
 " --- Disable Mappings {{{
 " Disable the built in F1 binding for help
 nnoremap <F1> <NOP>
 inoremap <F1> <NOP>
-
-" Force user to use hjkl for movement
-"inoremap <Up>    <NOP>
-"inoremap <Down>  <NOP>
-"inoremap <Left>  <NOP>
-"inoremap <Right> <NOP>
-"noremap  <Up>    <NOP>
-"noremap  <Down>  <NOP>
-"noremap  <Left>  <NOP>
-"noremap  <Right> <NOP>
-" --- }}}
 
 " --- Custom Functions {{{
 " Rename current file, via Gary Bernhardt & Chris Hunt's helper function
@@ -230,19 +198,19 @@ nnoremap <leader>mv :call MoveFile()<cr>
 " --- }}}
 
 " --- Status Line {{{
-set laststatus=2                            " Always show a status line
-set statusline=%f%m%r%h                     " file, modified, ro, help tags
-if v:version >= 703
-  set statusline+=%q                        " quickfix tag
-endif
-set statusline+=\ [%{&ff}]%y                " file format (dos/unix) and type
-set statusline+=\ %{fugitive#statusline()}  " git status (branch)
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*                          "*
-set statusline+=\ %=#%n                     " start right-align. buffer number
-set statusline+=\ %l/%L,%c                  " lines/total, column
-set statusline+=\ [%P]                      " percentage in file
+"set laststatus=2                            " Always show a status line
+"set statusline=%f%m%r%h                     " file, modified, ro, help tags
+"if v:version >= 703
+"  set statusline+=%q                        " quickfix tag
+"endif
+"set statusline+=\ [%{&ff}]%y                " file format (dos/unix) and type
+"set statusline+=\ %{fugitive#statusline()}  " git status (branch)
+"set statusline+=%#warningmsg#
+"" set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*                          "*
+"set statusline+=\ %=#%n                     " start right-align. buffer number
+"set statusline+=\ %l/%L,%c                  " lines/total, column
+"set statusline+=\ [%P]                      " percentage in file
 " --- }}}
 
 " --- GUI Settings {{{
@@ -263,25 +231,7 @@ if filereadable( expand("$HOME/.vim/colors/monokai.vim") )
 endif
 "--- }}}
 
-" --- Fugitive {{{
-" Fugitive (https://github.com/tpope/vim-fugitive)
-nmap <leader>b :Gblame<cr>
-nmap <leader>d :Gdiff<cr>
-nmap <leader>s :Gstatus<cr>
-nmap <leader>c :Gcommit %<cr>
-nmap <leader>C :Gcommit -a<cr>
-" --- }}}
+map <C-n> :NERDTreeToggle<CR>
+let g:vim_jsx_pretty_highlight_close_tag = 1
+let g:vim_jsx_pretty_colorful_config = 1
 
-" --- CtrlP {{{
-"  CtrlP Settings (https://github.com/kien/ctrlp.vim)
-let g:ctrlp_map='<leader>p'                  " Use ,p for c-p
-let g:ctrlp_max_height=15                    " Height of the ctrlp window
-
-" Use CtrlP to navigate & jump to function definitions (uses ctags)
-nnoremap <leader>. :CtrlPTag<cr>
-" --- }}}
-
-let g:syntastic_mode_map = {
-        \ "mode": "active",
-        \ "active_filetypes": ["ruby", "python"],
-        \ "passive_filetypes": ["scss"] }
